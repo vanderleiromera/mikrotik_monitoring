@@ -85,3 +85,24 @@ services:
     networks:
       - default
     restart: unless-stopped
+    
+  # node-exporter
+  node-exporter:
+    image: prom/node-exporter:v1.6.1
+    container_name: mikrotik-node
+    user: root
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /run/systemd/private:/run/systemd/private:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.systemd"
+      - "--collector.processes"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    expose:
+      - 9100   
