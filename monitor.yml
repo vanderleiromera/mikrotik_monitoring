@@ -16,7 +16,7 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=1y'  # <= adjust the storage retention period of Prometheus
+      - '--storage.tsdb.retention.time=21d'  # <= adjust the storage retention period of Prometheus
     restart: unless-stopped
     networks:
       - default
@@ -88,7 +88,7 @@ services:
     
   # node-exporter
   node-exporter:
-    image: prom/node-exporter:v1.6.1
+    image: prom/node-exporter:v1.7.0
     container_name: mikrotik-node
     user: root
     restart: unless-stopped
@@ -106,3 +106,15 @@ services:
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     expose:
       - 9100   
+      
+    # Next-dns
+  nextdns-exporter:
+    image: ghcr.io/raylas/nextdns-exporter:0.5.2
+    container_name: mikrotik-nextdns
+    restart: unless-stopped
+    ports:
+    - 9948:9948
+    environment:
+      NEXTDNS_PROFILE: ${NEXTDNS_PROFILE}
+      NEXTDNS_API_KEY: ${NEXTDNS_API_KEY}
+      NEXTDNS_RESULT_WINDOW: -1m
