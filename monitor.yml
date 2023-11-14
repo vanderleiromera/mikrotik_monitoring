@@ -112,8 +112,10 @@ services:
     image: ghcr.io/raylas/nextdns-exporter:0.5.2
     container_name: mikrotik-nextdns
     restart: unless-stopped
-    ports:
-    - 9948:9948
+    expose:
+      - 9948
+#    ports:
+#    - 9948:9948
     environment:
       NEXTDNS_PROFILE: ${NEXTDNS_PROFILE}
       NEXTDNS_API_KEY: ${NEXTDNS_API_KEY}

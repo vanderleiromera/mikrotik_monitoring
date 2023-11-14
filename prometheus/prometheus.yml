@@ -28,9 +28,9 @@ scrape_configs:
     # scheme defaults to 'http'.
 
     static_configs:
-         - targets:
-            - 'mikrotik_exporter:9436'
-            - 'mktxp:49090'
+      - targets: ["mikrotik-mktxp:49090"]
+#            - 'mikrotik_exporter:9436'
+#            - 'mktxp:49090'
             
   - job_name: 'node'
     static_configs:
@@ -39,7 +39,7 @@ scrape_configs:
   - job_name: nextdns
     scrape_interval: 1m
     static_configs:
-      - targets: [mikotik-nextdns:9948]
+      - targets: ['mikotik-nextdns:9948']
   
   - job_name: 'blackbox'
     scrape_interval: 1s
