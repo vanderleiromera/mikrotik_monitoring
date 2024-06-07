@@ -8,7 +8,7 @@ services:
   # Prometheus
   # https://github.com/stefanprodan/dockprom
   prometheus:
-    image: prom/prometheus:v2.47.2
+    image: prom/prometheus:v2.48.0
     container_name: mikrotik-prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -16,7 +16,7 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=21d'  # <= adjust the storage retention period of Prometheus
+      - '--storage.tsdb.retention.time=3d'  # <= adjust the storage retention period of Prometheus
     restart: unless-stopped
     networks:
       - default
@@ -26,7 +26,7 @@ services:
   # Grafana
   # https://github.com/stefanprodan/dockprom
   grafana:
-    image: grafana/grafana:10.1.2
+    image: grafana/grafana:10.3.1
     container_name: mikrotik-grafana
     user: "472"
     volumes:
@@ -48,7 +48,7 @@ services:
   # MKTXP
   # https://github.com/akpw/mktxp
   mktxp:
-    image: ghcr.io/akpw/mktxp:gha-5473726165
+    image: ghcr.io/akpw/mktxp:gha-9349504337
     container_name: mikrotik-mktxp
     user: root
     volumes:
@@ -77,7 +77,7 @@ services:
 
   # https://github.com/prometheus/blackbox_exporter/blob/master/example.yml
   blackbox:
-    image: quay.io/prometheus/blackbox-exporter:latest
+    image: quay.io/prometheus/blackbox-exporter:v0.25.0
     container_name: mikrotik-blackbox-exporter
     command: --config.file=/config/blackbox.yml
     volumes:
@@ -106,17 +106,19 @@ services:
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
     expose:
       - 9100   
-      
+
+
     # Next-dns
-  nextdns-exporter:
-    image: ghcr.io/raylas/nextdns-exporter:0.5.2
-    container_name: mikrotik-nextdns
-    restart: unless-stopped
-    expose:
-      - 9948
+#  nextdns-exporter:
+#    image: ghcr.io/raylas/nextdns-exporter:0.5.2
+#    container_name: mikrotik-nextdns
+#    restart: unless-stopped
+#    expose:
+#      - 9948
 #    ports:
 #    - 9948:9948
-    environment:
-      NEXTDNS_PROFILE: ${NEXTDNS_PROFILE}
-      NEXTDNS_API_KEY: ${NEXTDNS_API_KEY}
-      NEXTDNS_RESULT_WINDOW: -1m
+#    environment:
+#      NEXTDNS_PROFILE: ${NEXTDNS_PROFILE}
+#      NEXTDNS_API_KEY: ${NEXTDNS_API_KEY}
+#      NEXTDNS_RESULT_WINDOW: -1m
+
