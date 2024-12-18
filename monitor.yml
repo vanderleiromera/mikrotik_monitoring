@@ -8,7 +8,7 @@ services:
   # Prometheus
   # https://github.com/stefanprodan/dockprom
   prometheus:
-    image: prom/prometheus:v2.48.0
+    image: prom/prometheus:v2.49.1
     container_name: mikrotik-prometheus
     volumes:
       - ./prometheus:/etc/prometheus
@@ -26,7 +26,7 @@ services:
   # Grafana
   # https://github.com/stefanprodan/dockprom
   grafana:
-    image: grafana/grafana:10.3.1
+    image: grafana/grafana:11.4.0
     container_name: mikrotik-grafana
     user: "472"
     volumes:
@@ -48,7 +48,7 @@ services:
   # MKTXP
   # https://github.com/akpw/mktxp
   mktxp:
-    image: ghcr.io/akpw/mktxp:gha-9349504337
+    image: vanderleiromera/mktxp:v1.2.9 #ghcr.io/akpw/mktxp:gha-10438904141
     container_name: mikrotik-mktxp
     user: root
     volumes:
@@ -85,10 +85,9 @@ services:
     networks:
       - default
     restart: unless-stopped
-    
   # node-exporter
   node-exporter:
-    image: prom/node-exporter:v1.7.0
+    image: prom/node-exporter:v1.8.2
     container_name: mikrotik-node
     user: root
     restart: unless-stopped
@@ -121,4 +120,3 @@ services:
 #      NEXTDNS_PROFILE: ${NEXTDNS_PROFILE}
 #      NEXTDNS_API_KEY: ${NEXTDNS_API_KEY}
 #      NEXTDNS_RESULT_WINDOW: -1m
-

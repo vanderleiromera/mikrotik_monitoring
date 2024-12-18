@@ -1,9 +1,55 @@
 modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      valid_http_versions: ["HTTP/1.1", "HTTP/2"]
+      valid_status_codes: []  # Defaults to 2xx
+      method: GET
+  dns_edge:
+    prober: dns
+    timeout: 5s
+    dns:
+#      query_name: "www.bing.com"
+      query_name: "random-${__uuid__}.google.com"    # Substitua pelo domínio>
+      query_type: "A"                # Tipo de registro DNS (A, AAAA, etc.).
+      transport_protocol: "udp"      # Pode ser "udp" ou "tcp".
+      preferred_ip_protocol: "ip4"   # Use "ip4" para IPv4 ou "ip6" para IPv6.
+#      recursion_desired: false 
+      valid_rcodes:
+        - NOERROR
+
+  www.facebook.com:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "www.facebook.com"
+#      query_name: "random-${__uuid__}.google.com"    # Substitua pelo domínio>
+      query_type: "A"                # Tipo de registro DNS (A, AAAA, etc.).
+      transport_protocol: "udp"      # Pode ser "udp" ou "tcp".
+      preferred_ip_protocol: "ip4"   # Use "ip4" para IPv4 ou "ip6" para IPv6. 
+      valid_rcodes:
+        - NOERROR
+
+  www.bing.com:
+    prober: dns
+    timeout: 5s
+    dns:
+      query_name: "www.bing.com"
+#      query_name: "random-${__uuid__}.google.com"    # Substitua pelo domínio que deseja consultar.
+      query_type: "A"                # Tipo de registro DNS (A, AAAA, etc.).
+      transport_protocol: "udp"      # Pode ser "udp" ou "tcp".
+      preferred_ip_protocol: "ip4"   # Use "ip4" para IPv4 ou "ip6" para IPv6.
+#      recursion_desired: false 
+      valid_rcodes:
+        - NOERROR
+
   icmp_ttl5:
     prober: icmp
     timeout: 5s
     icmp:
       ttl: 10
+
   www.google.com:
     prober: dns
     timeout: 5s
@@ -11,8 +57,9 @@ modules:
       transport_protocol: "udp"
       preferred_ip_protocol: "ip4"
       query_name: "www.google.com"
+#      query_name: "random-${__uuid__}.google.com"
       query_type: "A"
+#      recursion_desired: false
       valid_rcodes:
         - NOERROR
-
 
