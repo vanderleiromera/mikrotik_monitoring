@@ -39,42 +39,8 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "palette-classic"
+            "mode": "thresholds"
           },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "fieldMinMax": true,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -82,9 +48,22 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "red",
+                "value": 50
+              },
+              {
+                "color": "yellow",
+                "value": 80
+              },
+              {
+                "color": "green",
+                "value": 99
               }
             ]
-          }
+          },
+          "unit": "percent"
         },
         "overrides": [
           {
@@ -95,7 +74,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Edge Router - NextDns"
+                "value": "Edge Router"
               }
             ]
           },
@@ -107,7 +86,7 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Max - AdguardHome"
+                "value": "Adguard Home"
               }
             ]
           },
@@ -119,36 +98,33 @@
             "properties": [
               {
                 "id": "displayName",
-                "value": "Mx9 - ControlD"
+                "value": "ControlD"
               }
             ]
           }
         ]
       },
       "gridPos": {
-        "h": 10,
+        "h": 8,
         "w": 16,
         "x": 0,
         "y": 0
       },
-      "id": 29,
-      "maxDataPoints": 100,
+      "id": 30,
       "options": {
-        "legend": {
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
           "calcs": [
-            "min",
-            "lastNotNull",
-            "diffperc",
-            "mean"
+            "last"
           ],
-          "displayMode": "table",
-          "placement": "bottom",
-          "showLegend": true
+          "fields": "",
+          "values": false
         },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto"
       },
       "pluginVersion": "11.4.0",
       "targets": [
@@ -159,9 +135,8 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": " probe_dns_lookup_time_seconds{job=\"blackbox-dns-monitor\",instance=\"10.11.7.11\"} * 1000000",
+          "expr": "avg_over_time(probe_success{job=\"blackbox-dns-monitor\", instance=\"10.11.7.11\"}[$__range]) * 100\n",
           "format": "time_series",
-          "hide": false,
           "interval": "$interval",
           "intervalFactor": 1,
           "legendFormat": "__auto",
@@ -175,7 +150,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": " probe_dns_lookup_time_seconds{job=\"blackbox-dns-monitor\",instance=\"10.11.11.11\"} * 1000000",
+          "expr": "avg_over_time(probe_success{ job=\"blackbox-dns-monitor\", instance=\"10.11.13.11\"}[$__range]) * 100",
           "format": "time_series",
           "hide": false,
           "interval": "$interval",
@@ -191,7 +166,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": " probe_dns_lookup_time_seconds{job=\"blackbox-dns-monitor\",instance=\"10.11.13.11\"} * 1000000",
+          "expr": "avg_over_time(probe_success{ job=\"blackbox-dns-monitor\", instance=\"10.11.11.11\"}[$__range]) * 100",
           "format": "time_series",
           "hide": false,
           "interval": "$interval",
@@ -201,8 +176,8 @@
           "refId": "C"
         }
       ],
-      "title": "Dns Lookup ",
-      "type": "timeseries"
+      "title": "Uptime Dns Self Hosted",
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -546,6 +521,284 @@
               "viz": false
             },
             "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "fieldMinMax": true,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{domain=\"www.bing.com\", instance=\"10.11.7.11\", job=\"blackbox-dns-monitor\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Edge Router - NextDns"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{domain=\"www.bing.com\", instance=\"10.11.11.11\", job=\"blackbox-dns-monitor\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Max - AdguardHome"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "{domain=\"www.bing.com\", instance=\"10.11.13.11\", job=\"blackbox-dns-monitor\"}"
+            },
+            "properties": [
+              {
+                "id": "displayName",
+                "value": "Mx9 - ControlD"
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 16,
+        "x": 0,
+        "y": 8
+      },
+      "id": 29,
+      "maxDataPoints": 100,
+      "options": {
+        "legend": {
+          "calcs": [
+            "min",
+            "lastNotNull",
+            "diffperc",
+            "mean",
+            "stdDev"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": " probe_dns_lookup_time_seconds{job=\"blackbox-dns-monitor\",instance=\"10.11.7.11\"} * 1000000",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$interval",
+          "intervalFactor": 1,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": " probe_dns_lookup_time_seconds{job=\"blackbox-dns-monitor\",instance=\"10.11.11.11\"} * 1000000",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$interval",
+          "intervalFactor": 1,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": " probe_dns_lookup_time_seconds{job=\"blackbox-dns-monitor\",instance=\"10.11.13.11\"} * 1000000",
+          "format": "time_series",
+          "hide": false,
+          "interval": "$interval",
+          "intervalFactor": 1,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "C"
+        }
+      ],
+      "title": "Self hosted Dns Lookup ",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "description": "Returns how long the probe took to complete in seconds",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
+      "id": 28,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "11.4.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "probe_http_duration_seconds{phase=\"resolve\"}",
+          "instant": false,
+          "interval": "",
+          "intervalFactor": 2,
+          "legendFormat": "{{ instance }}",
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP Probe Duration",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "PBFA97CFB590B2093"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
             "lineInterpolation": "smooth",
             "lineWidth": 1,
             "pointSize": 5,
@@ -654,10 +907,10 @@
         ]
       },
       "gridPos": {
-        "h": 11,
+        "h": 6,
         "w": 16,
         "x": 0,
-        "y": 10
+        "y": 18
       },
       "id": 17,
       "options": {
@@ -695,110 +948,6 @@
         }
       ],
       "title": "Probe Duration",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "description": "Returns how long the probe took to complete in seconds",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 12
-      },
-      "id": 28,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean",
-            "max",
-            "min"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "desc"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "editorMode": "code",
-          "expr": "probe_http_duration_seconds{phase=\"resolve\"}",
-          "instant": false,
-          "interval": "",
-          "intervalFactor": 2,
-          "legendFormat": "{{ instance }}",
-          "refId": "A"
-        }
-      ],
-      "title": "HTTP Probe Duration",
       "type": "timeseries"
     },
     {
@@ -985,115 +1134,10 @@
       ],
       "title": "Average DNS Lookup",
       "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 0.2
-              },
-              {
-                "color": "red",
-                "value": 0.5
-              }
-            ]
-          },
-          "unit": "s"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 6,
-        "w": 16,
-        "x": 0,
-        "y": 21
-      },
-      "id": 27,
-      "options": {
-        "legend": {
-          "calcs": [
-            "mean"
-          ],
-          "displayMode": "table",
-          "placement": "right",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "multi",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
-          },
-          "exemplar": true,
-          "expr": "probe_duration_seconds{target=~\"$target\"}",
-          "format": "time_series",
-          "interval": "$interval",
-          "intervalFactor": 1,
-          "legendFormat": "{{target}}",
-          "refId": "A"
-        }
-      ],
-      "title": "Probe Duration",
-      "type": "timeseries"
     }
   ],
   "preload": false,
-  "refresh": "10s",
+  "refresh": "",
   "schemaVersion": 40,
   "tags": [
     "blackbox",
@@ -1235,13 +1279,13 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Dns Blackbox Exporter",
   "uid": "pS6ZuGV7z",
-  "version": 39,
+  "version": 45,
   "weekStart": ""
 }
