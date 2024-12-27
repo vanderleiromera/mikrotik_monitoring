@@ -16,7 +16,7 @@ groups:
               datasourceUid: PBFA97CFB590B2093
               model:
                 editorMode: code
-                expr: avg_over_time(probe_dns_query_succeeded{job="blackbox-dns-monitor", instance= "10.11.13.11"}[5m]) == 0
+                expr: avg_over_time(probe_success{job="blackbox-dns-monitor", instance= "10.11.13.11"}[5m]) == 0
                 instant: true
                 intervalMs: 1000
                 legendFormat: __auto

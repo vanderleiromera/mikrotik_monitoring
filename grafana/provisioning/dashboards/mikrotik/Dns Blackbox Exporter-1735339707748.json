@@ -51,7 +51,7 @@
               },
               {
                 "color": "red",
-                "value": 50
+                "value": 0
               },
               {
                 "color": "yellow",
@@ -150,7 +150,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg_over_time(probe_success{ job=\"blackbox-dns-monitor\", instance=\"10.11.13.11\"}[$__range]) * 100",
+          "expr": "avg_over_time(probe_success{job=\"blackbox-dns-monitor\", instance=\"10.11.13.11\"}[$__range]) * 100",
           "format": "time_series",
           "hide": false,
           "interval": "$interval",
@@ -166,7 +166,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg_over_time(probe_success{ job=\"blackbox-dns-monitor\", instance=\"10.11.11.11\"}[$__range]) * 100",
+          "expr": "avg_over_time(probe_success{job=\"blackbox-dns-monitor\", instance=\"10.11.11.11\"}[$__range]) * 100",
           "format": "time_series",
           "hide": false,
           "interval": "$interval",
@@ -343,7 +343,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "probe_dns_query_succeeded{job=\"blackbox-dns-monitor\"}",
+          "expr": "probe_success{job=\"blackbox-dns-monitor\"}",
           "format": "time_series",
           "interval": "$interval",
           "intervalFactor": 1,
@@ -1137,7 +1137,7 @@
     }
   ],
   "preload": false,
-  "refresh": "",
+  "refresh": "10s",
   "schemaVersion": 40,
   "tags": [
     "blackbox",
@@ -1279,13 +1279,13 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Dns Blackbox Exporter",
   "uid": "pS6ZuGV7z",
-  "version": 45,
+  "version": 47,
   "weekStart": ""
 }
