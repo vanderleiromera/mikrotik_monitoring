@@ -1,0 +1,166 @@
+apiVersion: 1
+groups:
+    - orgId: 1
+      name: dns
+      folder: Mikrotik Monitoring
+      interval: 1m
+      rules:
+        - uid: ff98b407-eb83-4f8f-ac37-303c78da9178
+          title: Alert Falha Techdns
+          condition: B
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                editorMode: code
+                expr: avg_over_time(probe_success{job="blackbox-dns-monitor", instance= "172.23.0.1"}[5m]) == 0
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                            - 0
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                      unloadEvaluator:
+                        params:
+                            - 1
+                            - 0
+                        type: gt
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: B
+                type: threshold
+          noDataState: OK
+          execErrState: OK
+          for: 5m
+          isPaused: false
+        - uid: ee74ua4fxoruoc
+          title: Alert Falha Nextdns
+          condition: B
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                editorMode: code
+                expr: avg_over_time(probe_dns_query_succeeded{job="blackbox-dns-monitor", instance= "10.11.7.11"}[5m]) == 0
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                            - 0
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                      unloadEvaluator:
+                        params:
+                            - 1
+                            - 0
+                        type: gt
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: B
+                type: threshold
+          noDataState: OK
+          execErrState: OK
+          for: 5m
+          isPaused: false
+        - uid: de74uh8d56cxse
+          title: Alert Falha AdguardHome
+          condition: B
+          data:
+            - refId: A
+              relativeTimeRange:
+                from: 600
+                to: 0
+              datasourceUid: PBFA97CFB590B2093
+              model:
+                editorMode: code
+                expr: avg_over_time(probe_dns_query_succeeded{job="blackbox-dns-monitor", instance= "10.11.11.11"}[5m]) == 0
+                instant: true
+                intervalMs: 1000
+                legendFormat: __auto
+                maxDataPoints: 43200
+                range: false
+                refId: A
+            - refId: B
+              datasourceUid: __expr__
+              model:
+                conditions:
+                    - evaluator:
+                        params:
+                            - 1
+                            - 0
+                        type: lt
+                      operator:
+                        type: and
+                      query:
+                        params: []
+                      reducer:
+                        params: []
+                        type: avg
+                      type: query
+                      unloadEvaluator:
+                        params:
+                            - 1
+                            - 0
+                        type: gt
+                datasource:
+                    name: Expression
+                    type: __expr__
+                    uid: __expr__
+                expression: A
+                intervalMs: 1000
+                maxDataPoints: 43200
+                refId: B
+                type: threshold
+          noDataState: OK
+          execErrState: OK
+          for: 5m
+          isPaused: false

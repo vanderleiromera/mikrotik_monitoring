@@ -1,9 +1,5 @@
 version: "3.9"
 
-volumes:
-    prometheus_data: {}
-    grafana_data: {}
-
 services:
   # Prometheus
   # https://github.com/stefanprodan/dockprom
@@ -19,7 +15,7 @@ services:
       - '--storage.tsdb.retention.time=3d'  # <= adjust the storage retention period of Prometheus
     restart: unless-stopped
     networks:
-      - default
+      - techdns
     labels:
       org.label-schema.group: "monitoring"
 
@@ -41,14 +37,14 @@ services:
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/mikrotik/monitor.json
     restart: unless-stopped
     networks:
-      - default
+      - techdns
     labels:
       org.label-schema.group: "monitoring"
 
   # MKTXP
   # https://github.com/akpw/mktxp
   mktxp:
-    image: vanderleiromera/mktxp:v1.2.9 #ghcr.io/akpw/mktxp:gha-10438904141
+    image: vanderleiromera/mktxp:v1.2.16 #ghcr.io/akpw/mktxp:gha-10438904141
     container_name: mikrotik-mktxp
     user: root
     volumes:
@@ -57,7 +53,7 @@ services:
       #- './mktxp/:/home/mktxp/mktxp/'
       - './mktxp/:/root/mktxp/'
     networks:
-      - default
+      - techdns
     restart: unless-stopped
 
   nginx:
@@ -72,7 +68,7 @@ services:
       - 80:80  # You may adjust to some unprivileged ports
       - 443:443
     networks:
-      - default
+      - techdns
     restart: unless-stopped
 
   # https://github.com/prometheus/blackbox_exporter/blob/master/example.yml
@@ -83,7 +79,7 @@ services:
     volumes:
       - ./blackbox/blackbox.yml:/config/blackbox.yml
     networks:
-      - default
+      - techdns
     restart: unless-stopped
   # node-exporter
   node-exporter:
@@ -103,9 +99,77 @@ services:
       - "--collector.systemd"
       - "--collector.processes"
       - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    networks:
+      - techdns
     expose:
-      - 9100   
+      - 9100
 
+  crowdsec:
+    image: crowdsecurity/crowdsec:latest
+    container_name: crowdsec
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+      - 6060:6060
+      - 514:514/udp
+    environment:
+      COLLECTIONS: "a1ad/mikrotik crowdsecurity/linux"
+      GID: "${GID-1000}"
+    networks:
+      - techdns
+    healthcheck:
+      test: ["CMD", "cscli", "lapi", "status"]
+      interval: 300s
+      #timeout: 5s
+      #retries: 3
+      #start_period: 30s
+    volumes:
+      - ./acquis.d:/etc/crowdsec/acquis.d
+      #- ./config.yaml:/etc/crowdsec/config.yaml
+      #- logs:/var/log/nginx:ro
+      - crowdsec-db:/var/lib/crowdsec/data/
+      - crowdsec-config:/etc/crowdsec/
+
+ # blocklist:
+ #   image: crowdsecurity/blocklist-mirror:latest
+ #   container_name: blocklist
+ #   restart: unless-stopped
+ #   environment:
+ #     TZ: America/Rio_Branco
+ #     API_KEY: ${API_KEY}
+ #   depends_on:
+ #     crowdsec:
+ #       condition: service_healthy
+ #   ports:
+ #     - 41412:41412
+ #   networks:
+ #     - techdns
+ #   volumes:
+ #     - ./crowdsec-blocklist-mirror.yaml:/etc/crowdsec/bouncers/crowdsec-blocklist-mirror.yaml
+ #   healthcheck:
+ #     test: wget -qO- http://localhost:41412/security/blocklist?ipv4only || exit 1
+ #     start_period: 20s
+ #     interval: 5s
+ #     timeout: 3s
+ #     retries: 5
+
+  bouncer-mikrotik:
+    container_name: bouncer-mikrotik
+    image: vanderleiromera/cs-mk-bouncer:latest
+    env_file: ".env"
+    ports:
+      - 2112:2112/tcp # default metrics port
+      - 40000:40000/tcp # https://ko.build/features/debugging/
+    read_only: true
+    networks:
+      - techdns
+    depends_on:
+      crowdsec:
+        condition: service_healthy
+    restart: unless-stopped
+    privileged: false
+    cap_drop:
+      - ALL
 
     # Next-dns
 #  nextdns-exporter:
@@ -120,3 +184,68 @@ services:
 #      NEXTDNS_PROFILE: ${NEXTDNS_PROFILE}
 #      NEXTDNS_API_KEY: ${NEXTDNS_API_KEY}
 #      NEXTDNS_RESULT_WINDOW: -1m
+
+  dns-server:
+    container_name: dns-server
+    hostname: dns-server
+    image: technitium/dns-server:latest
+    # For DHCP deployments, use "host" network mode and remove all the port mappings, including the ports array by commenting them
+    # network_mode: "host"
+    ports:
+      - "5380:5380/tcp" #DNS web console (HTTP)
+      # - "53443:53443/tcp" #DNS web console (HTTPS)
+      - "53:53/udp" #DNS service
+      - "53:53/tcp" #DNS service
+      # - "853:853/udp" #DNS-over-QUIC service
+      # - "853:853/tcp" #DNS-over-TLS service
+      # - "443:443/udp" #DNS-over-HTTPS service (HTTP/3)
+      # - "443:443/tcp" #DNS-over-HTTPS service (HTTP/1.1, HTTP/2)
+      # - "80:80/tcp" #DNS-over-HTTP service (use with reverse proxy or certbot certificate renewal)
+      # - "8053:8053/tcp" #DNS-over-HTTP service (use with reverse proxy)
+      # - "67:67/udp" #DHCP service
+    environment:
+      - DNS_SERVER_DOMAIN=dns-server #The primary domain name used by this DNS Server to identify itself.
+      - DNS_SERVER_ADMIN_PASSWORD=${DNS_SERVER_ADMIN_PASSWORD} #DNS web console admin user password.
+      # - DNS_SERVER_ADMIN_PASSWORD_FILE=password.txt #The path to a file that contains a plain text password for the DNS web console admin user.
+      # - DNS_SERVER_PREFER_IPV6=false #DNS Server will use IPv6 for querying whenever possible with this option enabled.
+      # - DNS_SERVER_WEB_SERVICE_LOCAL_ADDRESSES=172.17.0.1,127.0.0.1 #Comma separated list of network interface IP addresses that you want the web service to listen on for requests. The "172.17.0.1" address is the built-in Docker bridge. The "[::]" is the default value if not specified. Note! This must be used only with "host" network mode.
+      # - DNS_SERVER_WEB_SERVICE_HTTP_PORT=5380 #The TCP port number for the DNS web console over HTTP protocol.
+      # - DNS_SERVER_WEB_SERVICE_HTTPS_PORT=53443 #The TCP port number for the DNS web console over HTTPS protocol.
+      # - DNS_SERVER_WEB_SERVICE_ENABLE_HTTPS=false #Enables HTTPS for the DNS web console.
+      # - DNS_SERVER_WEB_SERVICE_USE_SELF_SIGNED_CERT=false #Enables self signed TLS certificate for the DNS web console.
+      # - DNS_SERVER_OPTIONAL_PROTOCOL_DNS_OVER_HTTP=false #Enables DNS server optional protocol DNS-over-HTTP on TCP port 8053 to be used with a TLS terminating reverse proxy like nginx.
+      # - DNS_SERVER_RECURSION=AllowOnlyForPrivateNetworks #Recursion options: Allow, Deny, AllowOnlyForPrivateNetworks, UseSpecifiedNetworkACL.
+      # - DNS_SERVER_RECURSION_NETWORK_ACL=192.168.10.0/24, !192.168.10.2 #Comma separated list of IP addresses or network addresses to allow access. Add ! character at the start to deny access, e.g. !192.168.10.0/24 will deny entire subnet. The ACL is processed in the same order its listed. If no networks match, the default policy is to deny all except loopback. Valid only for `UseSpecifiedNetworkACL` recursion option.
+      # - DNS_SERVER_RECURSION_DENIED_NETWORKS=1.1.1.0/24 #Comma separated list of IP addresses or network addresses to deny recursion. Valid only for `UseSpecifiedNetworkACL` recursion option. This option is obsolete and DNS_SERVER_RECURSION_NETWORK_ACL should be used instead.
+      # - DNS_SERVER_RECURSION_ALLOWED_NETWORKS=127.0.0.1, 192.168.1.0/24 #Comma separated list of IP addresses or network addresses to allow recursion. Valid only for `UseSpecifiedNetworkACL` recursion option.  This option is obsolete and DNS_SERVER_RECURSION_NETWORK_ACL should be used instead.
+      # - DNS_SERVER_ENABLE_BLOCKING=false #Sets the DNS server to block domain names using Blocked Zone and Block List Zone.
+      # - DNS_SERVER_ALLOW_TXT_BLOCKING_REPORT=false #Specifies if the DNS Server should respond with TXT records containing a blocked domain report for TXT type requests.
+      # - DNS_SERVER_BLOCK_LIST_URLS= #A comma separated list of block list URLs.
+      # - DNS_SERVER_FORWARDERS=1.1.1.1, 8.8.8.8 #Comma separated list of forwarder addresses.
+      # - DNS_SERVER_FORWARDER_PROTOCOL=Tcp #Forwarder protocol options: Udp, Tcp, Tls, Https, HttpsJson.
+      # - DNS_SERVER_LOG_USING_LOCAL_TIME=true #Enable this option to use local time instead of UTC for logging.
+    volumes:
+      - config:/etc/dns
+#      - .techdns/:/etc/dns/blocklists
+    restart: unless-stopped
+    networks:
+      - techdns
+    sysctls:
+      - net.ipv4.ip_local_port_range=1024 65000
+      - net.ipv6.conf.all.disable_ipv6=0
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+    config:
+    #logs:
+    crowdsec-db:
+    crowdsec-config:
+
+#docker network create   --driver bridge   --subnet=172.23.0.0/20   --ipv6   --subnet=fd00:2::/64   techdns
+#cf docker ipv6.txt
+networks:
+  techdns:
+    enable_ipv6: true
+    external: true
+
