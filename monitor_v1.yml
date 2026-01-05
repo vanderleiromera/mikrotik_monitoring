@@ -104,6 +104,19 @@ services:
     expose:
       - 9100
 
+  rsyslog:
+    image: rsyslog:latest
+    container_name: rsyslog
+    ports:
+      - "10.11.13.11:514:514/udp"
+    volumes:
+      - rsyslog-logs:/var/log/rsyslog
+    restart: unless-stopped
+    networks:
+      - techdns
+    mem_limit: 64m
+    cpus: 0.5
+
   crowdsec:
     image: crowdsecurity/crowdsec:latest
     container_name: crowdsec
@@ -111,7 +124,6 @@ services:
     ports:
       - 8080:8080
       - 6060:6060
-      - 514:514/udp
     environment:
       COLLECTIONS: "a1ad/mikrotik crowdsecurity/linux"
       GID: "${GID-1000}"
@@ -125,8 +137,10 @@ services:
       #start_period: 30s
     volumes:
       - ./acquis.d:/etc/crowdsec/acquis.d
+      - ./scenarios:/etc/crowdsec/scenarios/local/
       #- ./config.yaml:/etc/crowdsec/config.yaml
-      #- logs:/var/log/nginx:ro
+      - ./mikrotik-ssh.yaml:/etc/crowdsec/parsers/s01-parse/mikrotik-ssh.yaml
+      - rsyslog-logs:/var/log/rsyslog:ro
       - crowdsec-db:/var/lib/crowdsec/data/
       - crowdsec-config:/etc/crowdsec/
 
@@ -238,7 +252,7 @@ volumes:
     prometheus_data: {}
     grafana_data: {}
     config:
-    #logs:
+    rsyslog-logs:
     crowdsec-db:
     crowdsec-config:
 
@@ -248,4 +262,5 @@ networks:
   techdns:
     enable_ipv6: true
     external: true
+
 

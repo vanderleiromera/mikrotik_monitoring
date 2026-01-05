@@ -1,5 +1,7 @@
-source: syslog
-listen_addr: 0.0.0.0
-listen_port: 514
+---
+filenames:
+ - /var/log/rsyslog/10.11.13.1/syslog.log
 labels:
   type: mikrotik
+---
+

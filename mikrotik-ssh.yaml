@@ -1,0 +1,16 @@
+onsuccess: next_stage
+name: local/mikrotik-bsd
+description: "Parse Mikrotik BSD syslog"
+filter: "1 == 1"  # Processa TODOS os logs do arquivo
+debug: false
+nodes:
+  - grok:
+      pattern: 'login.*failure.*user %{DATA:username}.*from %{IP:source_ip}'
+      apply_on: message
+statics:
+  - meta: service
+    value: ssh
+  - meta: log_type
+    value: ssh_failed_auth
+  - meta: source_ip
+    expression: evt.Parsed.source_ip
