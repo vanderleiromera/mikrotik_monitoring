@@ -1,0 +1,14 @@
+# ~/mikrotik_monitoring/scenarios/mikrotik-user-enum.yaml
+# PRIORIDADE ALTA
+type: trigger
+name: local/mikrotik-user-enumeration
+description: "Detect username enumeration"
+filter: "evt.Meta.log_type == 'ssh_failed_auth'"
+groupby: evt.Meta.source_ip
+distinct: evt.Meta.username
+condition: len(queue.Queue) >= 3  # 3 usuários diferentes = enum
+duration: 1m
+labels:
+  service: ssh
+  type: enumeration
+  remediation: true

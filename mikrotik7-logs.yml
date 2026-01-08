@@ -1,0 +1,100 @@
+onsuccess: next_stage
+name: local/mikrotik7-logs
+description: "Universal Mikrotik parser for all log types"
+filter: "evt.Parsed.program == 'Core' || evt.Line.Src contains 'mikrotik' || evt.Line.Src contains '10.11.13.1'"
+debug: false
+nodes:
+  # 1. SSH/Account Login Failures
+  - grok:
+      pattern: 'login\s+failure for user %{DATA:username} from %{IPORHOST:source_ip} via %{WORD:service}'
+      apply_on: message
+    statics:
+      - meta: service
+        expression: evt.Parsed.service
+      - meta: log_type
+        value: ssh_failed_auth
+      - meta: source_ip
+        expression: evt.Parsed.source_ip
+      - meta: username
+        expression: evt.Parsed.username
+
+  # 2. Successful Logins
+  - grok:
+      pattern: 'user\s+%{USERNAME:username} logged in from %{IPORHOST:source_ip} via %{WORD:service}'
+      apply_on: message
+    statics:
+      - meta: service
+        expression: evt.Parsed.service
+      - meta: log_type
+        value: login_success
+      - meta: source_ip
+        expression: evt.Parsed.source_ip
+      - meta: username
+        expression: evt.Parsed.username
+
+  # 3. Firewall Drops (formato simples)
+  - grok:
+      pattern: '%{DATA:action}.*proto %{WORD:proto}.*%{IP:source_ip}:%{INT:src_port}->%{IP:dst_ip}:%{INT:dst_port}'
+      apply_on: message
+    statics:
+      - meta: service
+        value: firewall
+      - meta: log_type
+        value: mikrotik_drop
+      - meta: source_ip
+        expression: evt.Parsed.source_ip
+      - meta: dst_ip
+        expression: evt.Parsed.dst_ip
+      - meta: dst_port
+        expression: evt.Parsed.dst_port
+      - meta: protocol
+        expression: evt.Parsed.proto
+
+  # 4. Firewall Drops (formato completo)
+  - grok:
+      pattern: '%{DATA:log_prefix}.*in:%{DATA:if_in}.*out:%{DATA:if_out}.*proto %{WORD:proto}.*%{IP:source_ip}:%{INT:src_port}->%{IP:dst_ip}:%{INT:dst_port}'
+      apply_on: message
+    statics:
+      - meta: service
+        value: firewall
+      - meta: log_type
+        value: mikrotik_drop
+      - meta: source_ip
+        expression: evt.Parsed.source_ip
+      - meta: dst_ip
+        expression: evt.Parsed.dst_ip
+      - meta: dst_port
+        expression: evt.Parsed.dst_port
+      - meta: protocol
+        expression: evt.Parsed.proto
+
+  # 5. System Events
+  - grok:
+      pattern: 'system.*%{GREEDYDATA:event}'
+      apply_on: message
+    statics:
+      - meta: service
+        value: system
+      - meta: log_type
+        value: system_event
+
+  # 6. Configuration Changes
+  - grok:
+      pattern: '%{DATA:action} by %{DATA:method}:%{USERNAME:user}@%{IPORHOST:source_ip}'
+      apply_on: message
+    statics:
+      - meta: service
+        value: config
+      - meta: log_type
+        value: config_change
+      - meta: source_ip
+        expression: evt.Parsed.source_ip
+      - meta: username
+        expression: evt.Parsed.user
+
+statics:
+  - target: evt.StrTime
+    expression: evt.Parsed.timestamp
+
+
+

@@ -139,7 +139,7 @@ services:
       - ./acquis.d:/etc/crowdsec/acquis.d
       - ./scenarios:/etc/crowdsec/scenarios/local/
       #- ./config.yaml:/etc/crowdsec/config.yaml
-      - ./mikrotik-ssh.yaml:/etc/crowdsec/parsers/s01-parse/mikrotik-ssh.yaml
+      - ./mikrotik7-logs.yml:/etc/crowdsec/parsers/s01-parse/mikrotik7-logs.yml
       - rsyslog-logs:/var/log/rsyslog:ro
       - crowdsec-db:/var/lib/crowdsec/data/
       - crowdsec-config:/etc/crowdsec/

@@ -1,0 +1,14 @@
+# ~/mikrotik_monitoring/scenarios/mikrotik-port-scan.yaml
+# PRIORIDADE ALTA - Configure primeiro
+type: leaky
+name: local/mikrotik-port-scan
+description: "Detect port scanning"
+filter: "evt.Meta.log_type == 'mikrotik_drop'"
+leakspeed: "5s"  # Rápido!
+capacity: 8      # Baixo threshold
+groupby: evt.Meta.source_ip
+blackhole: 24h   # Ban longo
+labels:
+  service: firewall
+  type: scan
+  remediation: true

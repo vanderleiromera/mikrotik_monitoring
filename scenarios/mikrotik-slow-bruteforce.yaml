@@ -1,0 +1,14 @@
+# ~/mikrotik_monitoring/scenarios/mikrotik-slow-bruteforce.yaml
+# PRIORIDADE MÉDIA-ALTA
+type: leaky
+name: local/mikrotik-slow-bruteforce
+description: "Detect slow bruteforce"
+filter: "evt.Parsed.message contains 'login failure'"
+leakspeed: "10m"   # Leak lento = memória longa
+capacity: 10       # 10 tentativas em várias horas
+groupby: evt.Meta.source_ip
+blackhole: 168h      # Ban de 1 semana
+labels:
+  service: multi
+  type: slow_bruteforce
+  remediation: true
