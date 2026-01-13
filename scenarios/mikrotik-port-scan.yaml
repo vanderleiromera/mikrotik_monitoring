@@ -3,11 +3,15 @@
 type: leaky
 name: local/mikrotik-port-scan
 description: "Detect port scanning"
-filter: "evt.Meta.log_type == 'mikrotik_drop'"
-leakspeed: "5s"  # Rápido!
-capacity: 8      # Baixo threshold
+filter: |
+  evt.Meta.log_type == 'mikrotik_drop' || 
+  evt.Meta.log_type == 'mikrotik_scan' ||
+  evt.Parsed.message contains 'SCAN-IPv4' ||
+  evt.Parsed.message contains 'SCAN-IPv6'
+leakspeed: "5s"
+capacity: 8
 groupby: evt.Meta.source_ip
-blackhole: 24h   # Ban longo
+blackhole: 24h
 labels:
   service: firewall
   type: scan

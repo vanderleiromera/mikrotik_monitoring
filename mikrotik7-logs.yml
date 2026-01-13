@@ -91,6 +91,42 @@ nodes:
         expression: evt.Parsed.source_ip
       - meta: username
         expression: evt.Parsed.user
+        
+  # 7. SCAN IPv4 (sem colchetes)
+  - grok:
+      pattern: 'SCAN-IPv4.*proto %{WORD:proto}.*%{IPV4:source_ip}:%{INT:src_port}->%{IPV4:dst_ip}:%{INT:dst_port}'
+      apply_on: message
+    statics:
+      - meta: service
+        value: firewall
+      - meta: log_type
+        value: mikrotik_scan
+      - meta: source_ip
+        expression: evt.Parsed.source_ip
+      - meta: dst_ip
+        expression: evt.Parsed.dst_ip
+      - meta: dst_port
+        expression: evt.Parsed.dst_port
+      - meta: protocol
+        expression: evt.Parsed.proto
+
+  # 8. SCAN IPv6 (COM colchetes!)
+  - grok:
+      pattern: 'SCAN-IPv6.*proto %{WORD:proto}.*\[%{DATA:source_ip}\]:%{INT:src_port}->\[%{DATA:dst_ip}\]:%{INT:dst_port}'
+      apply_on: message
+    statics:
+      - meta: service
+        value: firewall
+      - meta: log_type
+        value: mikrotik_scan
+      - meta: source_ip
+        expression: evt.Parsed.source_ip
+      - meta: dst_ip
+        expression: evt.Parsed.dst_ip
+      - meta: dst_port
+        expression: evt.Parsed.dst_port
+      - meta: protocol
+        expression: evt.Parsed.proto    
 
 statics:
   - target: evt.StrTime
